@@ -1,0 +1,61 @@
+{
+  "name": "ide3d",
+  "version": "1.0.0",
+  "description": "IDE3D - نرم‌افزار طراحی و توسعه سه‌بعدی حرفه‌ای با پشتیبانی بلاکچین",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "jest",
+    "lint": "eslint src/**/*.ts",
+    "format": "prettier --write src/**/*.ts",
+    "blockchain:connect": "ts-node src/blockchain/umbrellaConnect.ts",
+    "blockchain:status": "ts-node src/blockchain/status.ts"
+  },
+  "keywords": [
+    "3D",
+    "IDE",
+    "Design",
+    "CAD",
+    "Blockchain",
+    "UMB",
+    "Umbrella Network"
+  ],
+  "author": "OpenAI & IDE3D Contributors",
+  "license": "RB-IDE3D-2026-09-12-PRIVATE-001",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/three": "^r128.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.0.0",
+    "vite": "^4.0.0",
+    "jest": "^29.0.0",
+    "ts-jest": "^29.0.0"
+  },
+  "dependencies": {
+    "three": "^r128.0.0",
+    "axios": "^1.4.0",
+    "ethers": "^6.0.0",
+    "web3": "^4.0.0",
+    "umbrellajs": "^2.0.0",
+    "dotenv": "^16.0.0",
+    "express": "^4.18.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/milobayati/3d-ide.git"
+  },
+  "bugs": {
+    "url": "https://github.com/milobayati/3d-ide/issues"
+  },
+  "homepage": "https://github.com/milobayati/3d-ide#readme"
+}
