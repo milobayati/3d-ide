@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="IDE3D - نرم‌افزار طراحی و توسعه سه‌بعدی حرفه‌ای">
+    <meta name="author" content="OpenAI & IDE3D Contributors">
+    <meta name="theme-color" content="#1e1e1e">
+    
+    <!-- Security Headers -->
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data: https:">
+    
+    <title>IDE3D - طراحی سه‌بعدی</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2196F3;
+            --primary-dark: #1565C0;
+            --secondary: #FF9800;
+            --success: #4CAF50;
+            --danger: #F44336;
+            --warning: #FFC107;
+            --info: #00BCD4;
+            --dark: #1e1e1e;
+            --light: #f5f5f5;
+            --border: #e0e0e0;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--dark);
+            color: #fff;
+            overflow: hidden;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            font-family: 'Courier New', monospace;
+        }
+
+        .loading-content {
+            text-align: center;
+        }
+
+        .logo {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #2196F3, #FF9800);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+            font-weight: bold;
+        }
+
+        .loading-text {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, #2196F3, #FF9800);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .loading-bar {
+            width: 300px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .loading-progress {
+            height: 100%;
+            background: linear-gradient(90deg, #2196F3, #FF9800);
+            width: 0%;
+            animation: progress 2s ease-in-out infinite;
+            border-radius: 3px;
+        }
+
+        @keyframes progress {
+            0% { width: 0%; }
+            50% { width: 100%; }
+            100% { width: 100%; }
+        }
+
+        .loading-status {
+            font-size: 14px;
+            color: #999;
+            font-family: 'Courier New', monospace;
+            min-height: 20px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #2196F3;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        header {
+            background: rgba(30, 30, 30, 0.95);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 56px;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .header-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #2196F3, #FF9800);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .header-info {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #FF9800;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .status-dot.connected {
+            background: #4CAF50;
+        }
+
+        .status-dot.offline {
+            background: #F44336;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        #canvas-container {
+            flex: 1;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        footer {
+            background: rgba(30, 30, 30, 0.95);
+            border-top: 1px solid var(--border);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 40px;
+            font-size: 12px;
+            color: #999;
+            z-index: 100;
+        }
+
+        .footer-info {
+            display: flex;
+            gap: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Overlay Messages */
+        .overlay {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(30, 30, 30, 0.95);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px 20px;
+            font-size: 14px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            max-width: 400px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .overlay.success {
+            border-color: #4CAF50;
+            color: #4CAF50;
+        }
+
+        .overlay.error {
+            border-color: #F44336;
+            color: #F44336;
+        }
+
+        .overlay.warning {
+            border-color: #FFC107;
+            color: #FFC107;
+        }
+
+        .overlay.info {
+            border-color: #2196F3;
+            color: #2196F3;
+        }
+
+        /* Dark Mode Support */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: var(--dark);
+                color: #fff;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                height: auto;
+                gap: 10px;
+            }
+
+            .header-info {
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+            }
+
+            footer {
+                flex-direction: column;
+                height: auto;
+                gap: 10px;
+            }
+
+            .footer-info {
+                flex-direction: column;
+                width: 100%;
+            }
+        }
+
+        /* Accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading">
+        <div class="loading-content">
+            <div class="logo">🎨</div>
+            <div class="loading-text">IDE3D</div>
+            <div class="spinner"></div>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+            <div class="loading-status">درحال راه‌اندازی سیستم...</div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <header>
+        <div class="header-title">
+            <div class="header-icon">🎨</div>
+            <span>IDE3D - طراحی سه‌بعدی</span>
+        </div>
+        <div class="header-info">
+            <div class="status-indicator">
+                <span class="status-dot connected" id="connection-status"></span>
+                <span id="connection-text">متصل</span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div id="canvas-container">
+            <canvas id="three-canvas"></canvas>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-info">
+            <div class="info-item">
+                <span>📍 کرنل:</span>
+                <span id="kernel-status">قطع‌شده</span>
+            </div>
+            <div class="info-item">
+                <span>💾 ذخیره:</span>
+                <span id="storage-status">آماده</span>
+            </div>
+            <div class="info-item">
+                <span>⏱️ وقت:</span>
+                <span id="timestamp">00:00:00</span>
+            </div>
+        </div>
+        <div style="text-align: left;">
+            RB • IDE3D v1.0.0 • © 2024-2026 OpenAI
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // اطلاعات راه‌اندازی
+        const IDE3D_CONFIG = {
+            version: '1.0.0',
+            name: 'IDE3D',
+            env: 'production',
+            offlineMode: false,
+            kernelHost: 'localhost',
+            kernelPort: 3000,
+            useSSL: false,
+            license: 'RB-IDE3D-2026-09-12-PRIVATE-001'
+        };
+
+        // راه‌اندازی
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('%c🎨 IDE3D شروع می‌شود...', 'color: #2196F3; font-weight: bold; font-size: 16px');
+            console.log('⚙️ تنظیمات:', IDE3D_CONFIG);
+
+            // اپدیت ساعت
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('timestamp').textContent = now.toLocaleTimeString('fa-IR');
+            }, 1000);
+
+            // شبیه‌سازی بارگذاری
+            await simulateLoading();
+        });
+
+        async function simulateLoading() {
+            const statusEl = document.querySelector('.loading-status');
+            const steps = [
+                '💾 بارگذاری ذخیره‌سازی...',
+                '🔗 اتصال به کرنل...',
+                '🎨 راه‌اندازی رندرر...',
+                '📦 بارگذاری افزونه‌ها...',
+                '✅ آماده است!'
+            ];
+
+            for (let i = 0; i < steps.length; i++) {
+                statusEl.textContent = steps[i];
+                await new Promise(resolve => setTimeout(resolve, 800));
+            }
+
+            // نمایش برنامه
+            document.getElementById('loading').style.display = 'none';
+            console.log('✅ IDE3D آماده است!');
+        }
+    </script>
+
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- Application Bundle -->
+    <script src="js/main.js"></script>
+</body>
+</html>
